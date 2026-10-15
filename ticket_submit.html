@@ -54,7 +54,7 @@
         </form>
 
         <div class="text-center pt-2">
-            <a href="index_2.html" class="text-xs text-slate-500 hover:underline">← العودة إلى البوابة المركزية</a>
+            <a href="branch_portal.html" class="text-xs text-slate-500 hover:underline">← العودة إلى بوابة الفروع</a>
         </div>
     </div>
 
@@ -159,13 +159,13 @@
             "العرب": "arab",
             "ثكنات المعادي": "thakanat",
             "حدائق المعادي": "hadayek_maadi",
-            "زهراء المعادي": "زهراء"
+            "زهراء المعادي": "zahraa"
         };
 
         let currentBranch = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            const storedBranch = sessionStorage.getItem('ticket_branch');
+            const storedBranch = sessionStorage.getItem('ticket_branch') || sessionStorage.getItem('gharbawee_branch');
             if (storedBranch) {
                 currentBranch = storedBranch;
                 showDashboard();
@@ -181,6 +181,7 @@
             if (branchPasswords[branch] && password === branchPasswords[branch]) {
                 currentBranch = branch;
                 sessionStorage.setItem('ticket_branch', branch);
+                sessionStorage.setItem('gharbawee_branch', branch);
                 showDashboard();
             } else {
                 errorMsg.classList.remove('hidden');
@@ -197,12 +198,8 @@
         }
 
         function logout() {
-            sessionStorage.removeItem('ticket_branch');
-            currentBranch = null;
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('dashboardScreen').classList.add('hidden');
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').classList.add('hidden');
+            sessionStorage.clear();
+            window.location.href = 'branch_portal.html';
         }
 
         async function submitTicket(e) {
