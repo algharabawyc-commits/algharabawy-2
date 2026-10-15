@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بن الغرباوي - بوابة طلبات الصيانة والدعم الفني</title>
+    <!-- مكتبة تيلويند سي إس إس -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- مكتبة Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- شاشة تسجيل الدخول للفرع -->
+    <div id="loginScreen" class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl border border-gray-200 space-y-6">
+        <div class="text-center space-y-2">
+            <div class="bg-amber-900 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center shadow-md">
+                <img src="https://i.postimg.cc/VvnhkQhY/logo-01.png" alt="بن الغرباوي" class="h-10 w-auto object-contain">
+            </div>
+            <h1 class="text-xl font-bold text-amber-900">بن الغرباوي - بوابة الدعم الفني</h1>
+            <p class="text-xs text-gray-500">اختر الفرع وأدخل كلمة المرور الخاصة به للمتابعة</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">اختر الفرع</label>
+                <select id="loginBranchName" class="w-full p-3 border rounded-xl text-sm bg-white focus:outline-none focus:border-amber-600">
+                    <option value="أم المصريين">أم المصريين</option>
+                    <option value="فيصل">فيصل</option>
+                    <option value="عباس العقاد">عباس العقاد</option>
+                    <option value="مصر الجديدة">مصر الجديدة</option>
+                    <option value="المقطم">المقطم</option>
+                    <option value="حلوان">حلوان</option>
+                    <option value="حدائق حلوان">حدائق حلوان</option>
+                    <option value="الجزائر">الجزائر</option>
+                    <option value="العرب">العرب</option>
+                    <option value="ثكنات المعادي">ثكنات المعادي</option>
+                    <option value="حدائق المعادي">حدائق المعادي</option>
+                    <option value="زهراء المعادي">زهراء المعادي</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">كلمة مرور الفرع</label>
+                <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور..." class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-amber-600" required>
+            </div>
+
+            <button type="submit" class="w-full bg-amber-800 hover:bg-amber-900 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg">
+                تسجيل الدخول للبوابة
+            </button>
+            <p id="loginError" class="text-center text-xs text-red-600 hidden font-bold">كلمة المرور غير صحيحة لهذا الفرع!</p>
+        </form>
+
+        <div class="text-center pt-2">
+            <a href="index_2.html" class="text-xs text-slate-500 hover:underline">← العودة إلى البوابة المركزية</a>
+        </div>
+    </div>
+
+    <!-- لوحة تقديم ومتابعة البلاغات (تظهر بعد تسجيل الدخول) -->
+    <div id="dashboardScreen" class="w-full max-w-5xl space-y-6 hidden">
+        
+        <!-- الشريط العلوي -->
+        <header class="bg-amber-900 text-white shadow-md rounded-2xl px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-white px-2 py-1 rounded-lg shadow-sm flex items-center justify-center">
+                    <img src="https://i.postimg.cc/VvnhkQhY/logo-01.png" alt="بن الغرباوي" class="h-8 w-auto object-contain">
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold" id="headerTitle">الدعم الفني والصيانة</h1>
+                    <span class="text-xs text-amber-200" id="userRoleBadge">مدير الفرع</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="loadBranchTickets()" class="bg-amber-700 hover:bg-amber-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow">
+                    🔄 تحديث
+                </button>
+                <button onclick="logout()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow">
+                    🚪 تسجيل الخروج
+                </button>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- نموذج إرسال البلاغ -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4 h-fit">
+                <h3 class="font-bold text-gray-800 text-base border-b pb-2">🛠️ فتح بلاغ عطل جديد</h3>
+                
+                <form id="ticketForm" onsubmit="submitTicket(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">الفرع الحالي</label>
+                        <input type="text" id="displayBranchName" class="w-full p-2.5 border rounded-xl text-xs bg-gray-100 font-bold text-amber-900" readonly>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">نوع العطل / المشكلة</label>
+                        <select id="ticketCategory" class="w-full p-2.5 border rounded-xl text-xs bg-white focus:outline-none focus:border-amber-600">
+                            <option value="طابعة الإيصالات الحرارية">🖨️ طابعة الإيصالات الحرارية</option>
+                            <option value="شبكة Tailscale / الإنترنت">🌐 شبكة Tailscale / الإنترنت</option>
+                            <option value="شبكة الواي فاي (Captive Portal)">📶 شبكة الواي فاي للضيوف</option>
+                            <option value="شاشة الكاشير / الجهاز">💻 شاشة الكاشير / الجهاز</option>
+                            <option value="أخرى">⚠️ مشكلة أخرى</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">درجة الأولوية</label>
+                        <select id="ticketPriority" class="w-full p-2.5 border rounded-xl text-xs bg-white focus:outline-none focus:border-amber-600">
+                            <option value="عادي">🟢 عادي (لا يعطل الشغل تماماً)</option>
+                            <option value="عاجل جداً">🔴 عاجل جداً (متوقف عن العمل!)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">تفاصيل المشكلة</label>
+                        <textarea id="ticketDescription" rows="3" placeholder="اكتب تفاصيل العطل بوضوح..." class="w-full p-2.5 border rounded-xl text-xs focus:outline-none focus:border-amber-600" required></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-800 hover:bg-amber-900 text-white py-2.5 rounded-xl font-bold text-xs transition shadow">
+                        إرسال البلاغ لفريق الدعم 🚀
+                    </button>
+                </form>
+            </div>
+
+            <!-- متابعة بلاغات الفرع الحالية -->
+            <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-800 text-base">📋 سجِل بلاغات فرعك</h3>
+                    <span id="ticketCountBadge" class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">0 بلاغ</span>
+                </div>
+
+                <div class="overflow-x-auto flex-1 p-4">
+                    <div id="branchTicketsContainer" class="space-y-3">
+                        <p class="text-center text-gray-400 text-xs p-6">جاري التحميل...</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://csroadhvynbSksqncrur.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_oGcXPVopb4DItZ2LY6V1vQ_bQ3vf30C';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+        const branchPasswords = {
+            "أم المصريين": "om_elmasryeen",
+            "فيصل": "faisal",
+            "عباس العقاد": "abbas",
+            "مصر الجديدة": "masr",
+            "المقطم": "mokattam",
+            "حلوان": "helwan",
+            "حدائق حلوان": "hadayek_helwan",
+            "الجزائر": "algeria",
+            "العرب": "arab",
+            "ثكنات المعادي": "thakanat",
+            "حدائق المعادي": "hadayek_maadi",
+            "زهراء المعادي": "زهراء"
+        };
+
+        let currentBranch = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const storedBranch = sessionStorage.getItem('ticket_branch');
+            if (storedBranch) {
+                currentBranch = storedBranch;
+                showDashboard();
+            }
+        });
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const branch = document.getElementById('loginBranchName').value;
+            const password = document.getElementById('passwordInput').value.trim();
+            const errorMsg = document.getElementById('loginError');
+
+            if (branchPasswords[branch] && password === branchPasswords[branch]) {
+                currentBranch = branch;
+                sessionStorage.setItem('ticket_branch', branch);
+                showDashboard();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('headerTitle').textContent = `فرع: ${currentBranch}`;
+            document.getElementById('userRoleBadge').textContent = 'مدير الفرع - قسم الصيانة';
+            document.getElementById('displayBranchName').value = currentBranch;
+            loadBranchTickets();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('ticket_branch');
+            currentBranch = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        async function submitTicket(e) {
+            e.preventDefault();
+            const category = document.getElementById('ticketCategory').value;
+            const priority = document.getElementById('ticketPriority').value;
+            const description = document.getElementById('ticketDescription').value.trim();
+
+            const newTicket = {
+                branch_name: currentBranch,
+                category: category,
+                priority: priority,
+                description: description,
+                status: 'جديد (في انتظار المعاينة)',
+                created_at: new Date().toISOString()
+            };
+
+            let { error } = await supabaseClient.from('maintenance_tickets').insert([newTicket]);
+            if (error) {
+                alert('حدث خطأ أثناء إرسال البلاغ.');
+                console.error(error);
+            } else {
+                alert('تم إرسال بلاغ الصيانة بنجاح وإبلاغ فريق الدعم الفني! 🛠️');
+                document.getElementById('ticketDescription').value = '';
+                loadBranchTickets();
+            }
+        }
+
+        async function loadBranchTickets() {
+            if (!currentBranch) return;
+            const container = document.getElementById('branchTicketsContainer');
+            
+            try {
+                let { data, error } = await supabaseClient
+                    .from('maintenance_tickets')
+                    .select('*')
+                    .eq('branch_name', currentBranch)
+                    .order('created_at', { ascending: false });
+
+                if (!error) {
+                    const tickets = data || [];
+                    document.getElementById('ticketCountBadge').textContent = `${tickets.length} بلاغ`;
+
+                    if (tickets.length === 0) {
+                        container.innerHTML = `<p class="text-center text-gray-400 text-xs p-6">لا توجد بلاغات مسجلة لهذا الفرع حالياً.</p>`;
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    tickets.forEach(ticket => {
+                        let d = new Date(ticket.created_at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+                        const card = document.createElement('div');
+                        card.className = "border border-gray-200 rounded-xl p-3 bg-gray-50/50 flex flex-col gap-2 text-xs";
+                        card.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-900">البلاغ #${ticket.id} - ${ticket.category}</span>
+                                <span class="px-2 py-0.5 rounded font-bold ${ticket.status.includes('جديد') ? 'bg-blue-100 text-blue-800' : ticket.status.includes('جاري') ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">${ticket.status}</span>
+                            </div>
+                            <p class="text-gray-700"><b>التفاصيل:</b> ${ticket.description}</p>
+                            <div class="text-[10px] text-gray-400 flex justify-between">
+                                <span>الأولوية: <b>${ticket.priority}</b></span>
+                                <span>التاريخ: ${d}</span>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
