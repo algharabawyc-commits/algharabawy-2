@@ -80,7 +80,7 @@
         <!-- اختصارات الخدمات -->
         <main class="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            <!-- بطاقة إدارة الأوردرات -->
+            <!-- بطاقة إدارة الأوردرات (محدثة بالامتداد .html الصحيح) -->
             <a href="branch_dashboard.html" class="bg-white hover:bg-amber-50 border border-gray-200 hover:border-amber-600 p-6 rounded-2xl shadow-sm transition flex flex-col items-center text-center space-y-3 group">
                 <div class="w-14 h-14 bg-amber-100 group-hover:bg-amber-800 group-hover:text-white text-amber-800 rounded-2xl flex items-center justify-center text-2xl transition">
                     📦
@@ -92,7 +92,7 @@
                 <span class="text-xs font-bold text-amber-800 pt-2">دخول النظام ←</span>
             </a>
 
-            <!-- بطاقة بلاغات الصيانة -->
+            <!-- بطاقة بلاغات الصيانة (محدثة بالامتداد .html الصحيح) -->
             <a href="it_dashboard.html" class="bg-white hover:bg-amber-50 border border-gray-200 hover:border-amber-600 p-6 rounded-2xl shadow-sm transition flex flex-col items-center text-center space-y-3 group">
                 <div class="w-14 h-14 bg-blue-100 group-hover:bg-blue-800 group-hover:text-white text-blue-800 rounded-2xl flex items-center justify-center text-2xl transition">
                     🛠️
@@ -120,7 +120,7 @@
             "العرب": "arab",
             "ثكنات المعادي": "thakanat",
             "حدائق المعادي": "hadayek_maadi",
-            "زهراء المعادي": "زهراء"
+            "زهراء المعادي": "zahraa"
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -137,7 +137,6 @@
             const errorMsg = document.getElementById('loginError');
 
             if (branchPasswords[branch] && password === branchPasswords[branch]) {
-                // حفظ الجلسة لتعمل بسلاسة مع الملفين
                 sessionStorage.setItem('gharbawee_role', 'branch_admin');
                 sessionStorage.setItem('gharbawee_branch', branch);
                 sessionStorage.setItem('ticket_branch', branch);
