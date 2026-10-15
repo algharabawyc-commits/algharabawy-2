@@ -210,7 +210,6 @@
     </div>
 
     <script>
-        // إعدادات Supabase
         const SUPABASE_URL = 'https://csroadhvynbSksqncrur.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_oGcXPVopb4DItZ2LY6V1vQ_bQ3vf30C';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -420,7 +419,6 @@
             const role = sessionStorage.getItem('gharbawee_role');
             const storedBranch = sessionStorage.getItem('gharbawee_branch');
             
-            // إصلاح المنطق لتمييز يوزر المدير العام عن مدير الفرع
             if (role === 'master' && (!storedBranch || storedBranch === 'الإدارة الرئيسية')) {
                 currentUser = { role: 'admin', name: 'الإدارة الرئيسية' };
                 initDashboard();
@@ -479,8 +477,15 @@
             sessionStorage.clear();
             if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
             
+            // إذا كان المستخدم هو المدير العام، يعود للبوابة الرئيسية
             if (currentUser && currentUser.role === 'admin') {
                 window.location.href = 'index_2.html';
+                return;
+            }
+
+            // إذا كان المستخدم مدير فرع، يعود مباشرة إلى بوابة الفروع
+            if (currentUser && currentUser.role === 'branch') {
+                window.location.href = 'branch_portal.html';
                 return;
             }
 
