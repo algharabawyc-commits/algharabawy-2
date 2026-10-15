@@ -54,7 +54,7 @@
         </form>
 
         <div class="text-center pt-2">
-            <a href="branch_portal.html" class="text-xs text-slate-500 hover:underline">← العودة إلى بوابة الفروع</a>
+            <a href="index.html" class="text-xs text-slate-500 hover:underline">← العودة إلى الصفحة الرئيسية (index)</a>
         </div>
     </div>
 
@@ -199,7 +199,8 @@
 
         function logout() {
             sessionStorage.clear();
-            window.location.href = 'branch_portal.html';
+            // التوجيه التلقائي إلى صفحة index عند تسجيل الخروج
+            window.location.href = 'index.html';
         }
 
         async function submitTicket(e) {
